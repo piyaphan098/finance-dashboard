@@ -1,0 +1,495 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Prompt:wght@400;500;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#22c87a;--gd:#16a360;--gg:rgba(34,200,122,.15);
+  --dark:#080f0b;--d2:#0f1c14;--d3:#111a14;--d4:#162112;
+  --t:rgba(240,247,242,1);--m:rgba(240,247,242,.55);--m2:rgba(240,247,242,.2);
+  --card:rgba(255,255,255,.035);--cb:rgba(255,255,255,.08);
+}
+html,body{background:var(--dark);color:var(--t);font-family:'Sarabun',sans-serif;min-height:100%;overflow-x:hidden}
+.bg-grid{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(34,200,122,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(34,200,122,.03) 1px,transparent 1px);background-size:48px 48px}
+.app{position:relative;z-index:1;display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{background:rgba(8,15,11,.9);border-right:1px solid var(--cb);padding:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.sb-logo{padding:24px 20px 20px;border-bottom:1px solid var(--cb)}
+.logo{font-family:'Prompt',sans-serif;font-weight:700;font-size:20px;letter-spacing:-.5px;background:linear-gradient(135deg,#fff 30%,var(--g));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo span{-webkit-text-fill-color:var(--g)}
+.sb-user{padding:16px 20px;border-bottom:1px solid var(--cb);display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#3fba8a,#2a8e6a);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.u-name{font-size:13px;font-weight:600}
+.u-email{font-size:11px;color:var(--m)}
+.sb-nav{flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;color:var(--m);font-size:14px;transition:all .2s;border:1px solid transparent}
+.nav-item:hover{background:var(--card);color:var(--t)}
+.nav-item.active{background:var(--gg);border-color:rgba(34,200,122,.2);color:var(--g);font-weight:600}
+.nav-icon{font-size:17px;width:22px;text-align:center}
+.sb-bottom{padding:14px 12px;border-top:1px solid var(--cb)}
+.month-budget{background:var(--card);border:1px solid var(--cb);border-radius:12px;padding:12px}
+.mb-label{font-size:11px;color:var(--m);margin-bottom:4px}
+.mb-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px}
+.mb-bar{background:var(--cb);border-radius:4px;height:5px}
+.mb-fill{height:5px;border-radius:4px;background:linear-gradient(90deg,var(--g),var(--gd));width:29%}
+
+/* MAIN */
+.main{display:flex;flex-direction:column;min-height:100vh}
+.topbar{padding:16px 28px;border-bottom:1px solid var(--cb);display:flex;align-items:center;justify-content:space-between;background:rgba(8,15,11,.5);backdrop-filter:blur(10px);position:sticky;top:0;z-index:50}
+.page-title{font-family:'Prompt',sans-serif;font-size:17px;font-weight:500}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.top-btn{background:var(--card);border:1px solid var(--cb);border-radius:9px;padding:7px 14px;color:var(--m);font-family:'Sarabun',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
+.top-btn:hover{border-color:rgba(34,200,122,.3);color:var(--g)}
+.top-btn.add{background:var(--g);border-color:var(--g);color:#080f0b;font-weight:700}
+.top-btn.add:hover{background:var(--gd)}
+.notif{position:relative}
+.notif-dot{position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;background:#e07070;border:2px solid var(--dark)}
+
+.content{flex:1;padding:24px 28px;display:flex;flex-direction:column;gap:20px}
+
+/* STAT CARDS */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.sc{background:var(--card);border:1px solid var(--cb);border-radius:16px;padding:18px;transition:all .25s;cursor:default}
+.sc:hover{border-color:rgba(34,200,122,.25);transform:translateY(-2px)}
+.sc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.sc-label{font-size:12px;color:var(--m);font-weight:400}
+.sc-badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600}
+.up{background:rgba(34,200,122,.12);color:var(--g)}
+.dn{background:rgba(224,112,112,.12);color:#e07070}
+.nt{background:rgba(126,181,224,.12);color:#7eb5e0}
+.sc-val{font-family:'Prompt',sans-serif;font-size:24px;font-weight:700;letter-spacing:-1px;margin-bottom:4px}
+.sc-val.g{color:var(--g)}.sc-val.r{color:#e07070}.sc-val.b{color:#7eb5e0}.sc-val.w{color:var(--t)}
+.sc-sub{font-size:11px;color:var(--m)}
+
+/* MAIN GRID */
+.mid-grid{display:grid;grid-template-columns:1fr 320px;gap:16px}
+.card{background:var(--card);border:1px solid var(--cb);border-radius:16px;overflow:hidden}
+.card-header{padding:16px 18px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--cb)}
+.card-title{font-size:14px;font-weight:600}
+.card-action{font-size:12px;color:var(--g);cursor:pointer;border:none;background:none;font-family:'Sarabun',sans-serif}
+.card-body{padding:16px 18px}
+
+/* CHART */
+.chart-tabs{display:flex;gap:6px;margin-bottom:16px}
+.ctab{padding:4px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--cb);background:none;color:var(--m);font-family:'Sarabun',sans-serif;transition:all .2s}
+.ctab.active{background:var(--gg);border-color:rgba(34,200,122,.3);color:var(--g)}
+.bar-wrap{display:flex;align-items:flex-end;gap:5px;height:140px;width:100%}
+.bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bval{font-size:9px;color:var(--m);white-space:nowrap}
+.bbar{width:100%;border-radius:5px 5px 0 0;transition:height .4s ease,opacity .2s}
+.blabel{font-size:10px;color:var(--m)}
+.chart-legend{display:flex;gap:14px;margin-top:12px}
+.cl-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--m)}
+.cl-dot{width:8px;height:8px;border-radius:2px}
+
+/* DONUT */
+.donut-wrap{display:flex;flex-direction:column;align-items:center;margin:8px 0 14px}
+.cat-list{display:flex;flex-direction:column;gap:8px}
+.cat-row{display:flex;align-items:center;gap:10px}
+.cat-color{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.cat-name{flex:1;font-size:13px}
+.cat-bar-track{flex:2;background:var(--cb);border-radius:3px;height:4px}
+.cat-bar-fill{height:4px;border-radius:3px}
+.cat-pct{font-size:12px;color:var(--m);width:30px;text-align:right}
+
+/* TRANSACTIONS */
+.tx-table{width:100%;border-collapse:collapse}
+.tx-table th{font-size:11px;color:var(--m);font-weight:500;text-align:left;padding:6px 10px;border-bottom:1px solid var(--cb);letter-spacing:.04em}
+.tx-table td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;vertical-align:middle}
+.tx-table tr:last-child td{border-bottom:none}
+.tx-table tr:hover td{background:rgba(255,255,255,.02)}
+.tx-ico-cell{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.tx-cat-badge{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--cb);color:var(--m)}
+.amt-pos{color:var(--g);font-weight:600}.amt-neg{color:#e07070;font-weight:600}
+
+/* INVEST SUMMARY */
+.inv-list{display:flex;flex-direction:column;gap:10px}
+.inv-row{background:rgba(255,255,255,.02);border:1px solid var(--cb);border-radius:12px;padding:12px}
+.inv-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.inv-name{font-size:13px;font-weight:600}
+.inv-type{font-size:11px;color:var(--m);margin-top:1px}
+.inv-track{background:var(--cb);border-radius:3px;height:4px;margin-bottom:6px}
+.inv-fill{height:4px;border-radius:3px}
+.inv-nums{display:flex;justify-content:space-between;font-size:11px;color:var(--m)}
+.badge-up{background:rgba(34,200,122,.12);color:var(--g);font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600}
+.badge-dn{background:rgba(224,112,112,.12);color:#e07070;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600}
+
+/* ADD MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.show{opacity:1;pointer-events:all}
+.modal{background:var(--d2);border:1px solid var(--cb);border-radius:20px;padding:28px;width:420px;max-width:95vw;transform:translateY(16px);transition:transform .25s}
+.overlay.show .modal{transform:translateY(0)}
+.modal-title{font-family:'Prompt',sans-serif;font-size:17px;font-weight:500;margin-bottom:20px}
+.type-toggle{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:20px}
+.tt{padding:9px;text-align:center;border-radius:10px;border:1px solid var(--cb);cursor:pointer;font-size:13px;color:var(--m);transition:all .2s}
+.tt:hover{border-color:rgba(255,255,255,.15)}
+.tt.income.sel{background:rgba(34,200,122,.12);border-color:rgba(34,200,122,.4);color:var(--g)}
+.tt.expense.sel{background:rgba(224,112,112,.12);border-color:rgba(224,112,112,.4);color:#e07070}
+.tt.invest.sel{background:rgba(126,181,224,.12);border-color:rgba(126,181,224,.4);color:#7eb5e0}
+.field{margin-bottom:14px}
+.field label{font-size:12px;color:var(--m);display:block;margin-bottom:6px}
+.field input,.field select{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--cb);border-radius:10px;padding:10px 14px;color:var(--t);font-family:'Sarabun',sans-serif;font-size:14px;outline:none;transition:border .2s}
+.field input:focus,.field select:focus{border-color:rgba(34,200,122,.5)}
+.field input::placeholder{color:var(--m2)}
+.field select option{background:#111;color:#fff}
+.modal-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-btns{display:flex;gap:10px;margin-top:6px}
+.mbtn{flex:1;padding:12px;border-radius:10px;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.mbtn.cancel{background:none;border:1px solid var(--cb);color:var(--m)}
+.mbtn.cancel:hover{border-color:rgba(255,255,255,.15);color:var(--t)}
+.mbtn.save{background:var(--g);border:none;color:#080f0b}
+.mbtn.save:hover{background:var(--gd)}
+</style>
+
+<div class="bg-grid"></div>
+<div class="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-logo"><div class="logo">ฉลาด<span>ใช้</span></div></div>
+  <div class="sb-user">
+    <div class="avatar">ส</div>
+    <div><div class="u-name">สมชาย รักดี</div><div class="u-email">somchai@gmail.com</div></div>
+  </div>
+  <div class="sb-nav">
+    <div class="nav-item active" onclick="switchPage('dashboard',this)"><div class="nav-icon">🏠</div>ภาพรวม</div>
+    <div class="nav-item" onclick="switchPage('expense',this)"><div class="nav-icon">💰</div>รายรับ-รายจ่าย</div>
+    <div class="nav-item" onclick="switchPage('invest',this)"><div class="nav-icon">📈</div>การลงทุน</div>
+    <div class="nav-item" onclick="switchPage('tax',this)"><div class="nav-icon">🧾</div>คำนวณภาษี</div>
+    <div class="nav-item" onclick="switchPage('news',this)"><div class="nav-icon">📰</div>ข่าวการเงิน</div>
+    <div style="flex:1"></div>
+    <div class="nav-item" onclick="alert('Settings')"><div class="nav-icon">⚙️</div>ตั้งค่า</div>
+  </div>
+  <div class="sb-bottom">
+    <div class="month-budget">
+      <div class="mb-label">Budget เดือนนี้</div>
+      <div class="mb-row"><span>ใช้ไป ฿12,850</span><span style="color:var(--g)">฿43,750 เหลือ</span></div>
+      <div class="mb-bar"><div class="mb-fill"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">ภาพรวมการเงิน</div>
+    <div class="topbar-right">
+      <button class="top-btn">เม.ย. 2568 ▾</button>
+      <button class="top-btn notif">🔔<span class="notif-dot"></span></button>
+      <button class="top-btn add" onclick="openModal()">+ บันทึกรายการ</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- STAT CARDS -->
+    <div class="stat-grid">
+      <div class="sc">
+        <div class="sc-top"><div class="sc-label">รายรับเดือนนี้</div><div class="sc-badge up">+8.3%</div></div>
+        <div class="sc-val g">฿45,000</div>
+        <div class="sc-sub">เดือนที่แล้ว ฿41,500</div>
+      </div>
+      <div class="sc">
+        <div class="sc-top"><div class="sc-label">รายจ่ายเดือนนี้</div><div class="sc-badge dn">+12%</div></div>
+        <div class="sc-val r">฿12,850</div>
+        <div class="sc-sub">เดือนที่แล้ว ฿11,470</div>
+      </div>
+      <div class="sc">
+        <div class="sc-top"><div class="sc-label">ลงทุนเดือนนี้</div><div class="sc-badge nt">DCA</div></div>
+        <div class="sc-val b">฿3,700</div>
+        <div class="sc-sub">ผลตอบแทนรวม +฿4,464</div>
+      </div>
+      <div class="sc">
+        <div class="sc-top"><div class="sc-label">เงินออม/คงเหลือ</div><div class="sc-badge up">+29%</div></div>
+        <div class="sc-val w">฿28,450</div>
+        <div class="sc-sub">63% ของรายรับ</div>
+      </div>
+    </div>
+
+    <!-- MID GRID -->
+    <div class="mid-grid">
+
+      <!-- LEFT: Chart + Transactions -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <!-- BAR CHART CARD -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">รายรับ vs รายจ่าย</div>
+            <div style="display:flex;gap:6px">
+              <button class="ctab active" onclick="setChartTab(this,'6M')">6 เดือน</button>
+              <button class="ctab" onclick="setChartTab(this,'1Y')">1 ปี</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="bar-wrap" id="bar-chart"></div>
+            <div class="chart-legend">
+              <div class="cl-item"><div class="cl-dot" style="background:var(--g)"></div>รายรับ</div>
+              <div class="cl-item"><div class="cl-dot" style="background:#e07070"></div>รายจ่าย</div>
+              <div class="cl-item"><div class="cl-dot" style="background:#7eb5e0"></div>ลงทุน</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRANSACTIONS CARD -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">รายการล่าสุด</div>
+            <button class="card-action">ดูทั้งหมด →</button>
+          </div>
+          <div class="card-body" style="padding:0 4px">
+            <table class="tx-table">
+              <thead><tr>
+                <th></th><th>รายการ</th><th>หมวด</th><th>วันที่</th><th>จำนวน</th>
+              </tr></thead>
+              <tbody id="tx-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <!-- CATEGORY PIE -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">หมวดรายจ่าย</div>
+            <button class="card-action">เดือนนี้</button>
+          </div>
+          <div class="card-body">
+            <div class="cat-list" id="cat-list"></div>
+          </div>
+        </div>
+
+        <!-- INVESTMENT CARD -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">พอร์ตลงทุน</div>
+            <button class="card-action">จัดการ →</button>
+          </div>
+          <div class="card-body">
+            <div class="inv-list" id="inv-list"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- end content -->
+</div><!-- end main -->
+</div><!-- end app -->
+
+<!-- ADD TRANSACTION MODAL -->
+<div class="overlay" id="overlay" onclick="closeIfBg(event)">
+  <div class="modal">
+    <div class="modal-title">บันทึกรายการใหม่</div>
+    <div class="type-toggle">
+      <div class="tt income sel" onclick="selType('income',this)">💰 รายรับ</div>
+      <div class="tt expense" onclick="selType('expense',this)">💸 รายจ่าย</div>
+      <div class="tt invest" onclick="selType('invest',this)">📈 ลงทุน</div>
+    </div>
+    <div class="field">
+      <label>ชื่อรายการ</label>
+      <input type="text" placeholder="เช่น ก๋วยเตี๋ยว, เงินเดือน...">
+    </div>
+    <div class="modal-row">
+      <div class="field">
+        <label>จำนวนเงิน (฿)</label>
+        <input type="number" placeholder="0.00">
+      </div>
+      <div class="field">
+        <label>วันที่</label>
+        <input type="date" value="2025-04-24">
+      </div>
+    </div>
+    <div class="field">
+      <label>หมวดหมู่</label>
+      <select>
+        <option>อาหาร & เครื่องดื่ม</option>
+        <option>เดินทาง</option>
+        <option>ที่อยู่อาศัย</option>
+        <option>สุขภาพ</option>
+        <option>ความบันเทิง</option>
+        <option>ช้อปปิ้ง</option>
+        <option>การศึกษา</option>
+        <option>อื่นๆ</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="closeModal()">ยกเลิก</button>
+      <button class="mbtn save" onclick="saveTransaction()">บันทึก ✓</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const months6=['พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.','เม.ย.'];
+const months12=['พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.','เม.ย.'];
+const data6={income:[38000,41500,39000,42000,40500,45000],expense:[10200,11470,9800,11200,10500,12850],invest:[3000,3000,3000,3500,3500,3700]};
+const data12={income:[35000,36000,37000,38000,39000,39500,38000,41500,39000,42000,40500,45000],expense:[9500,10000,9800,10200,10500,10800,10200,11470,9800,11200,10500,12850],invest:[2000,2000,2500,2500,3000,3000,3000,3000,3000,3500,3500,3700]};
+
+// ---- API config ----
+const API_URL = 'https://finance-api.onrender.com'; // 👈 เปลี่ยน URL ตรงนี้หลัง deploy Render
+
+// fallback data (ใช้ถ้า API ยังไม่ได้ deploy)
+const defaultTx=[
+  {icon:'💼',name:'เงินเดือน',cat:'รายรับ',date:'1 เม.ย.',amt:45000,type:'income'},
+  {icon:'🏠',name:'ค่าเช่า',cat:'ที่อยู่อาศัย',date:'1 เม.ย.',amt:-7500,type:'expense'},
+  {icon:'🍜',name:'อาหาร',cat:'อาหาร',date:'23 เม.ย.',amt:-3200,type:'expense'},
+  {icon:'🚌',name:'BTS รายเดือน',cat:'เดินทาง',date:'1 เม.ย.',amt:-930,type:'expense'},
+  {icon:'📈',name:'กองทุน SSF',cat:'ลงทุน',date:'5 เม.ย.',amt:-3000,type:'invest'},
+  {icon:'💊',name:'ประกันสุขภาพ',cat:'สุขภาพ',date:'10 เม.ย.',amt:-1200,type:'expense'},
+];
+let txData=[...defaultTx];
+const cats=[
+  {name:'ที่อยู่อาศัย',pct:58,color:'#7eb5e0'},
+  {name:'อาหาร',pct:25,color:'#e07070'},
+  {name:'เดินทาง',pct:7,color:'#f0a040'},
+  {name:'สุขภาพ',pct:6,color:'#a07ed0'},
+  {name:'อื่นๆ',pct:4,color:'#808080'},
+];
+const invData=[
+  {name:'กองทุน SSF',type:'DCA ฿3,000/เดือน',pct:68,fill:'#22c87a',change:'+12.4%',up:true},
+  {name:'หุ้น PTT',type:'Lump sum',pct:32,fill:'#e07070',change:'-3.2%',up:false},
+];
+
+function buildChart(months,data){
+  const bc=document.getElementById('bar-chart');
+  bc.innerHTML='';
+  const mx=Math.max(...data.income,...data.expense,...data.invest);
+  months.forEach((_,i)=>{
+    const col=document.createElement('div');
+    col.className='bcol';
+    const grp=document.createElement('div');
+    grp.style.cssText='display:flex;align-items:flex-end;gap:2px;flex:1;width:100%;justify-content:center';
+    [[data.income[i],'#22c87a'],[data.expense[i],'#e07070'],[data.invest[i],'#7eb5e0']].forEach(([v,c])=>{
+      const b=document.createElement('div');
+      b.className='bbar';
+      b.style.cssText=`height:${Math.round((v/mx)*120)}px;background:${c};opacity:${i===months.length-1?1:.6};width:30%`;
+      grp.appendChild(b);
+    });
+    const lbl=document.createElement('div');
+    lbl.className='blabel';
+    lbl.textContent=months[i];
+    col.appendChild(grp);col.appendChild(lbl);
+    bc.appendChild(col);
+  });
+}
+
+function buildTx(){
+  const tb=document.getElementById('tx-body');
+  tb.innerHTML='';
+  txData.forEach(t=>{
+    const tr=document.createElement('tr');
+    const col=t.type==='income'?'var(--g)':t.type==='invest'?'#7eb5e0':'#e07070';
+    tr.innerHTML=`<td><div class="tx-ico-cell" style="background:${col}18">${t.icon}</div></td>
+      <td style="font-weight:500">${t.name}</td>
+      <td><span class="tx-cat-badge">${t.cat}</span></td>
+      <td style="color:var(--m)">${t.date}</td>
+      <td class="${t.amt>0?'amt-pos':'amt-neg'}">${t.amt>0?'+':''}฿${Math.abs(t.amt).toLocaleString()}</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function buildCats(){
+  const cl=document.getElementById('cat-list');
+  cl.innerHTML='';
+  cats.forEach(c=>{
+    cl.innerHTML+=`<div class="cat-row">
+      <div class="cat-color" style="background:${c.color}"></div>
+      <div class="cat-name">${c.name}</div>
+      <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${c.pct}%;background:${c.color}"></div></div>
+      <div class="cat-pct">${c.pct}%</div>
+    </div>`;
+  });
+}
+
+function buildInv(){
+  const il=document.getElementById('inv-list');
+  il.innerHTML='';
+  invData.forEach(d=>{
+    il.innerHTML+=`<div class="inv-row">
+      <div class="inv-top">
+        <div><div class="inv-name">${d.name}</div><div class="inv-type">${d.type}</div></div>
+        <div class="${d.up?'badge-up':'badge-dn'}">${d.change}</div>
+      </div>
+      <div class="inv-track"><div class="inv-fill" style="width:${d.pct}%;background:${d.fill}"></div></div>
+      <div class="inv-nums"><span>${d.pct}% ของพอร์ต</span></div>
+    </div>`;
+  });
+}
+
+function setChartTab(el,period){
+  document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  if(period==='6M') buildChart(months6,data6);
+  else buildChart(months12,data12);
+}
+
+let currentType='income';
+function selType(type,el){
+  currentType=type;
+  document.querySelectorAll('.tt').forEach(t=>t.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function openModal(){document.getElementById('overlay').classList.add('show')}
+function closeModal(){document.getElementById('overlay').classList.remove('show')}
+function closeIfBg(e){if(e.target===document.getElementById('overlay'))closeModal()}
+async function saveTransaction(){
+  const btn=document.querySelector('.mbtn.save');
+  const nameEl=document.querySelector('.field input[type=text]');
+  const amtEl=document.querySelector('.field input[type=number]');
+  const dateEl=document.querySelector('.field input[type=date]');
+  const catEl=document.querySelector('.field select');
+  const rawAmt=parseFloat(amtEl.value)||0;
+  const amt=currentType==='income'?Math.abs(rawAmt):-Math.abs(rawAmt);
+  const iconMap={income:'💼',expense:'💸',invest:'📈'};
+  const newItem={
+    icon:iconMap[currentType]||'💰',
+    name:nameEl.value||'รายการใหม่',
+    cat:catEl.value,
+    date:dateEl.value,
+    amt,type:currentType
+  };
+  try{
+    const res=await fetch(`${API_URL}/transaction`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(newItem)
+    });
+    if(res.ok){ await loadTransactions(); }
+    else { throw new Error(); }
+  } catch(e){
+    txData.unshift(newItem);
+    buildTx();
+  }
+  btn.textContent='บันทึกแล้ว ✓';
+  btn.style.background='#16a360';
+  setTimeout(()=>{closeModal();btn.textContent='บันทึก ✓';btn.style.background='';},900);
+}
+
+async function loadTransactions(){
+  try{
+    const res=await fetch(`${API_URL}/transactions`);
+    if(!res.ok) throw new Error();
+    const data=await res.json();
+    txData=(data.length>0)?data:[...defaultTx];
+  } catch(e){ txData=[...defaultTx]; }
+  buildTx();
+}
+
+function switchPage(page,el){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
+  const titles={dashboard:'ภาพรวมการเงิน',expense:'รายรับ-รายจ่าย',invest:'การลงทุน',tax:'คำนวณภาษี',news:'ข่าวการเงิน'};
+  document.getElementById('page-title').textContent=titles[page]||'';
+}
+
+buildChart(months6,data6);
+loadTransactions();
+buildCats();
+buildInv();
+</script>
